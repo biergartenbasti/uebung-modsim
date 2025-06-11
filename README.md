@@ -1,4 +1,5 @@
 # Übung ModSim
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gl/your-username%2Fyour-repo/HEAD?urlpath=voila%2Frender%2Fyour_notebook.ipynb)
 
 
 
