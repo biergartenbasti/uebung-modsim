@@ -1,6 +1,6 @@
 # Übung ModSim
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gl/zrz45%2Fuebung-modsim/main?urlpath=voila%2Frender%2Fnotebooks%2FMD_simulation.ipynb)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gl/gitlab.uni-ulm.de%2Fzrz45%2Fuebung-modsim/HEAD?urlpath=voila%2Frender%2Fnotebooks%2FMD_simulation.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gl/gitlab.uni-ulm.de%2Fzrz45%2Fuebung-modsim/HEAD?urlpath=voila%2Frender%2Fnotebooks%2FMD_Simulation.ipynb)
 
 ## Getting started
 
