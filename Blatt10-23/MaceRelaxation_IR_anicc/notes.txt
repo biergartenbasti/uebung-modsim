@@ -1,0 +1,3 @@
+ - Paper (anbei) ist das ursprüngliche paper zur Einführung von MACE-OFF ('n this paper, we introduce a family of purely local (i.e., short-range), transferable bio-organic machine learning force fields, which we refer to collectively as MACE-OFF').
+ - MACE ist ein wichtiges python module für machine learning für Atome, Moleküle, Kristalle.
+ - Es existieren einige universelle Potentiale ("foundation model" z.B. für PBE, PBE+U, R2SCAN, organische Moleküle) trainierten an Datenbanken ('small', 'medium', 'large')
