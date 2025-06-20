@@ -1,0 +1,14 @@
+Was soll gemacht werden?
+Eine MD durchführen mithilfe von mace foundation model (mace_mp0)
+
+TODO:
+- requirements.txt
+- POSCAR als input
+- Run MD
+- Save trajectrory als XDATCAR
+- VMD zur Visualisierung (alternativ ovid)
+
+Welche POSCARs bzw welche Beispielstrukturen?
+- Einzelnes Mg-Atom auf Mg-Oberfläche
+vs
+- Einzelnes Li-Atom auf Li-Oberfläche
