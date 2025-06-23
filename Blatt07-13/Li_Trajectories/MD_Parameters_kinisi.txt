@@ -1,0 +1,7 @@
+Modes are green, medians are orange.
+Modes are Ea / eV: 1.4062019619996119e-02, A / cm2 s-1: 1.7622128750824806e-08
+Medians are Ea / eV: 1.404014613367647e-02, A / cm2 s-1: 1.7622128750824806e-08
+Median Absolute Deviation of A / cm2 s-1 is: 2.3059540902388605e-04
+Median Absolute Deviation of Ea / eV is: 1.5864536421377227e-10
+
+Using median values, D / cm2 s-1 at 300K is: 1.0239229e-08
