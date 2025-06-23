@@ -1,0 +1,8 @@
+
+pytorch
+mace-torch
+ase
+matplotlib
+crystal-toolkit
+numpy
+scipy

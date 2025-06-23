@@ -1,5 +1,6 @@
 Was soll gemacht werden?
-Eine MD durchführen mithilfe von mace foundation model (mace_mp0)
+1. MD(s) durchführen mithilfe von mace foundation model (mace_mp0).
+2. Ein Arrheniusverhalten an die Werte fitten.
 
 TODO:
 - requirements.txt
