@@ -1,0 +1,9 @@
+torch
+mace-torch
+matplotlib
+nglview
+kinisi
+pymatgen
+corner
+ase
+
