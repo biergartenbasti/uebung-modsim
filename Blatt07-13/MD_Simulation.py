@@ -26,13 +26,17 @@ from pymatgen.io.vasp import Xdatcar
 #%%
 path_to_Li = 'Li/POSCAR_4x4x3_20vac'
 path_to_Mg = 'Mg/POSCAR_4x4x3_20vac'
+path_to_MgBulk = 'Mg/POSCAR_3x3x3Bulk'
+path_to_LiPSCl = 'LiPSCl/POSCAR_2x2x2'
+path_to_MgScSe =  'MgSc2Se4/POSCAR_2x2x2'
 
 structure_Li = read(path_to_Li,format='vasp')
 structure_Mg = read(path_to_Mg,format='vasp')
+structure_MgBulk = read(path_to_MgBulk,format='vasp')
 
+structure_LiPSCl = read(path_to_LiPSCl,format='vasp')
+structure_MgScSe = read(path_to_MgScSe,format='vasp')
 #%% Calculator and relaxation
-mace_calc = mace_mp('medium-mpa-0')
-
 def relaxation_mace(structure, calc, fix_cell = True, f = 0.01):
     '''
     Parameters
@@ -68,58 +72,6 @@ def relaxation_mace(structure, calc, fix_cell = True, f = 0.01):
     # set up dict with relaxed structure
     structure_data={'relaxed_structure':structure,'total_energy':structure.get_total_energy()}
     return structure_data
-
-def fix_ase_xdatcar(input_file, output_file=None):
-    """
-    Fix ASE-generated XDATCAR to be pymatgen-compatible
-    """
-    if output_file is None:
-        output_file = input_file + '_fixed'
-    
-    with open(input_file, 'r') as f:
-        lines = f.readlines()
-    
-    fixed_lines = []
-    i = 0
-    
-    # Fix header
-    fixed_lines.append(lines[0])  # Title
-    fixed_lines.append(lines[1])  # Scale  
-    fixed_lines.append(lines[2])  # Lattice 1
-    fixed_lines.append(lines[3])  # Lattice 2
-    fixed_lines.append(lines[4])  # Lattice 3
-    fixed_lines.append(lines[5].strip() + '\n')  # Clean element names
-    fixed_lines.append(lines[6].strip() + '\n')  # Clean atom counts
-    
-    # Process configurations
-    i = 7
-    while i < len(lines):
-        line = lines[i].strip()
-        
-        if line == "Direct":
-            fixed_lines.append("Direct\n")
-            i += 1
-            
-            # Skip configuration= line
-            if i < len(lines) and lines[i].strip().startswith("configuration="):
-                i += 1
-            
-            # Add coordinates until next Direct
-            while i < len(lines):
-                coord_line = lines[i].strip()
-                if coord_line == "Direct":
-                    break
-                if coord_line and not coord_line.startswith("configuration="):
-                    fixed_lines.append(coord_line + '\n')
-                i += 1
-        else:
-            i += 1
-    
-    with open(output_file, 'w') as f:
-        f.writelines(fixed_lines)
-    
-    print(f"Fixed XDATCAR saved as: {output_file}")
-    return output_file
 
 def MD_mace(structure, traj_out = 'output', T_start = 300.0, t_step = 3, n_steps = 1000, friction_coefficient = 1E-3):
     '''    
@@ -173,32 +125,56 @@ def MD_mace(structure, traj_out = 'output', T_start = 300.0, t_step = 3, n_steps
     xdatcar_file = f'{traj_out}/XDATCAR_{int(T_start)}K'
     write_vasp_xdatcar(xdatcar_file, saved_traj, label=None)
 
-    # Fix the file immediately
-    fixed_file = fix_ase_xdatcar(xdatcar_file)
-
     return structure
+#%% Define calculators
 
+mace_calc = mace_mp(model='medium-mpa-0',device='cuda',default_type='float32')
+model_pt = "./MACE-matpes-r2scan-omat-ft.model"
 
-        
+mace_calc_bulk = MACECalculator(
+    model_paths=model_pt,
+    device='cuda',  # or 'cpu'
+    default_dtype='float32'
+)
 
-#%% MD Simulation Lithium
+#%% MD Simulation MgScSe Bulk
+MgScSe_relaxed = relaxation_mace(structure_MgScSe, mace_calc, fix_cell = False, f = 0.01)
+
+T_list = [800.0,1000.0,1200.0,1400.0,1600.0,1800.0,2000.0]
+traj_dir = 'MgSc2Se4_Trajectories'
+for Temp in T_list:
+    print(f'Temperatur ist {Temp}')
+    structure_tempo = copy.deepcopy(MgScSe_relaxed['relaxed_structure'])
+    MD_mace(structure_tempo, traj_out = traj_dir, T_start = Temp, t_step = 2.5, n_steps = 1000, friction_coefficient = 1E-3)
+    pass
+#%% MD Simulation LiPSCl Bulk
+LiPSCl_relaxed = relaxation_mace(structure_LiPSCl, mace_calc, fix_cell = False, f = 0.01)
+
+T_list = [300.0,500.0,700.0,900.0,1100.0,1300.0]
+traj_dir = 'LiPSCl_Trajectories'
+for Temp in T_list:
+    print(f'Temperatur ist {Temp}')
+    structure_tempo = copy.deepcopy(LiPSCl_relaxed['relaxed_structure'])
+    MD_mace(structure_tempo, traj_out = traj_dir, T_start = Temp, t_step = 2.5, n_steps = 1000, friction_coefficient = 1E-3)
+    pass
+#%% MD Simulation Lithium Surface
 Li_relaxed=relaxation_mace(structure_Li, mace_calc, fix_cell = True, f = 0.01)
 
-T_Li = [200.0]#,250.0,300.0,350.0,400.0,450.0]
+T_Li = [200.0,300.0,400.0,450.0]
 Li_traj_dir = 'Li_Trajectories'
 for Temp in T_Li:
     print(f'Temperatur ist {Temp}')
     structure_tempo = copy.deepcopy(Li_relaxed['relaxed_structure'])
-    MD_mace(structure_tempo, traj_out = Li_traj_dir, T_start = Temp, t_step = 3, n_steps = 1000, friction_coefficient = 1E-3)
+    MD_mace(structure_tempo, traj_out = Li_traj_dir, T_start = Temp, t_step = 2.5, n_steps = 1000, friction_coefficient = 1E-3)
     pass
 
-#%% MD Simulation Magnesium
+#%% MD Simulation Magnesium Surface
 Mg_relaxed=relaxation_mace(structure_Mg, mace_calc, fix_cell = True, f = 0.01)
 
-T_Mg = [200.0,250.0,300.0,350.0,400.0,450.0,500.0,550.0,600.0]
+T_Mg = [200.0,300.0,400.0,500.0,600.0,700.0]
 Mg_traj_dir = 'Mg_Trajectories'
 for Temp in T_Mg:
     print(f'Temperatur ist {Temp}')
     structure_tempo = copy.deepcopy(Mg_relaxed['relaxed_structure'])
-    MD_mace(structure_tempo, traj_out = Mg_traj_dir, T_start = Temp, t_step = 3, n_steps = 1000, friction_coefficient = 1E-3)
+    MD_mace(structure_tempo, traj_out = Mg_traj_dir, T_start = Temp, t_step = 2.5, n_steps = 1000, friction_coefficient = 1E-3)
     pass

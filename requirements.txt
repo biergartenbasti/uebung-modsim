@@ -1,5 +1,0 @@
-jupyter
-ipywidgets
-matplotlib
-numpy
-scipy

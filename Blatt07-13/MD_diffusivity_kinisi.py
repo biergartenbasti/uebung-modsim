@@ -22,8 +22,8 @@ warnings.filterwarnings("ignore", category=UserWarning)
 for key,value in os.environ.items():
     globals()[key]=value
     pass
-MD_target='Mg_Trajectories'
-plot_title='Magnesium Surface Diffusion'
+MD_target='MgSc2Se4_Trajectories'
+plot_title='MgSc2Se4 Bulk Diffusion'
 
 # define folder that contains trajectory files and create a list of them
 trajectories_list = [f'{MD_target}/{el}' for el in os.listdir(MD_target) if el.endswith('.traj')]
@@ -32,19 +32,19 @@ np.random.seed(42)
 rng = np.random.RandomState(42) # is not used right now because of reproducibility
 
 p_params = {'specie': 'Mg',
-          'specie_indices': [97],
-          'time_step': 3.0,
+          #'specie_indices': [97],
+          'time_step': 2.5,
           'step_skip': 1,
           'progress': False,
-          #'max_dt':20000,
-          #'min_dt':1000,
+          #'max_dt': 3000,
+          #'min_dt': 100,
           #'n_steps': 200
           }
 u_params = {'dimension':'xyz',
             'progress': False}
 d_params={'progress': False}
 
-time_skip=1.0
+time_skip=1000.0
 
 temps=np.array([]) # empty array, temps will be appended in the loop
 D=[] # append diffusion coeffs
@@ -128,7 +128,8 @@ for traj_file in trajectories_list:
 
 #%%
 # arrhenius parameters
-s = StandardArrhenius(temps, D, bounds=((1E-5,2),(1e-10,10)))
+
+s = StandardArrhenius(temps, D, bounds=((1E-3,1),(1e-20,1E-1)))
 s.max_likelihood('mini')
 s.mcmc()
 
@@ -144,20 +145,20 @@ corner.overplot_points(fig, s.variable_modes[None], marker="s", color="green")
 
 # place a text box in upper left in axes coords
 props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-inplot_text="Median Ea = "+np.format_float_scientific(np.round(s.variable_medians[0],3))+" eV\nMedian A = "+np.format_float_scientific(np.round(s.variable_medians[1],4))+unit_cms
-inplot_text2="\nMode Ea = "+np.format_float_scientific(np.round(s.variable_modes[0],3))+" eV\nMode A = "+np.format_float_scientific(np.round(s.variable_modes[1],4))+unit_cms
+inplot_text="Median Ea = "+np.format_float_scientific(np.round(s.variable_medians[0],3))+" eV\nMedian A = "+np.format_float_scientific(s.variable_medians[1],precision=2)+unit_cms
+inplot_text2="\nMode Ea = "+np.format_float_scientific(np.round(s.variable_modes[0],3))+" eV\nMode A = "+np.format_float_scientific(s.variable_modes[1],precision=2)+unit_cms
 fig.text(0.6,0.75, inplot_text+inplot_text2,fontsize=14,verticalalignment='center',ha='left',bbox=props)
 fig.savefig(MD_target+'/ArrheniusParamsDistribution_kinisi'+plot_title+'.png',dpi=1000)
 
 # print arrhenius parameters information and save to file
 print("Modes are green, medians are orange")
-print("Modes are Ea / eV: "+np.format_float_scientific(s.variable_modes[0])+", A / cm2 s-1: "+np.format_float_scientific(s.variable_modes[1]))
-print("Medians are Ea / eV: "+np.format_float_scientific(s.variable_medians[0])+", A / cm2 s-1: "+np.format_float_scientific(s.variable_medians[1]))
+print("Modes are Ea / eV: "+np.format_float_scientific(s.variable_modes[0])+", A / cm2 s-1: "+np.format_float_scientific(s.variable_modes[1],precision=2))
+print("Medians are Ea / eV: "+np.format_float_scientific(s.variable_medians[0])+", A / cm2 s-1: "+np.format_float_scientific(s.variable_medians[1],precision=2))
 # diffusion coefficient at 300K
-D300K=np.format_float_scientific(np.round(s.variable_medians[1]*np.exp(-s.variable_medians[0]/300/1E-5/8.62),15))
+D300K=np.format_float_scientific(s.variable_medians[1]*np.exp(-s.variable_medians[0]/300/1E-5/8.62),precision=2)
 print("Using median values, D / cm2 s-1 at 300K is: "+D300K)
-print("Median Absolute Deviation of A / eV is: "+np.format_float_scientific(np.median(np.absolute(s.variables[0] - np.median(s.variables[0])))))
-print("Median Absolute Deviation of Ea / eV is: "+np.format_float_scientific(np.median(np.absolute(s.variables[1] - np.median(s.variables[1])))))
+print("Median Absolute Deviation of A / cm2 s-1 is: "+np.format_float_scientific(np.median(np.absolute(s.variables[0] - np.median(s.variables[0]))),precision=2))
+print("Median Absolute Deviation of Ea / eV is: "+np.format_float_scientific(np.median(np.absolute(s.variables[1] - np.median(s.variables[1]))),precision=2))
 with open(MD_target+'/MD_Parameters_kinisi.txt', 'w') as f:
     f.write("Modes are green, medians are orange.\n")
     f.write("Modes are Ea / eV: "+np.format_float_scientific(s.variable_modes[0])+", A / cm2 s-1: "+np.format_float_scientific(s.variable_modes[1])+'\n')
@@ -174,17 +175,6 @@ fig2,ax2=plt.subplots(figsize=(10,8))
 
 # plot data points
 plt.errorbar(1000/s.x, s.y.n, s.y.ci(), marker='o', ls='', color='k', zorder=10)
-'''
-# if credible intervals are needed, below part could be used
-credible_intervals = [[0.05, 99.05], [0.15,99.85], [5.0, 95.0]]
-alpha = [0.6, 0.4, 0.2]
-for i, ci in enumerate(credible_intervals):
-    plt.fill_between(1000/s.x,
-                     *np.percentile(s.distribution, ci, axis=1),
-                     alpha=alpha[i],
-                     color='#0173B2',
-                     lw=0)
-'''
 
 Tx = np.linspace(300, 2500, 200) # temps
 Dy = s.variable_medians[1]*np.exp(-s.variable_medians[0]/Tx/1E-5/8.62) # Ds
@@ -199,4 +189,26 @@ plt.title(plot_title)
 ax2.text(0.75,0.95, inplot_text+'\nD$_{300K}$ = '+D300K+unit_cms, transform=ax2.transAxes, fontsize=18,
         verticalalignment='top',ha='center',bbox=props)
 plt.savefig(MD_target+'/ArrheniusPlot_kinisi'+plot_title+'.png',dpi=1000)
+plt.show()
+#%%
+# Add this before the Arrhenius fitting to examine your data
+print("Temperature and D values:")
+for i, (temp, d_val) in enumerate(zip(temps, D)):
+    ci_lower, ci_upper = d_val.ci()
+    uncertainty = (ci_upper - ci_lower) / 2  # Half-width of confidence interval
+    print(f"T = {temp} K: D = {d_val.n:.2e} ± {uncertainty:.2e} cm²/s")
+    print(f"    CI: [{ci_lower:.2e}, {ci_upper:.2e}]")
+
+# Check for outliers or unrealistic values
+plt.figure(figsize=(10, 6))
+d_values = [d.n for d in D]
+d_errors = [(d.ci()[1] - d.ci()[0])/2 for d in D]  # Half-width of CI as error
+
+plt.errorbar(temps, d_values, d_errors, 
+             marker='o', capsize=5, capthick=2)
+plt.xlabel('Temperature (K)')
+plt.ylabel('D (cm²/s)')
+plt.yscale('log')
+plt.title('Diffusion Coefficients vs Temperature')
+plt.grid(True, alpha=0.3)
 plt.show()
