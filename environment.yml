@@ -1,0 +1,13 @@
+name: ModSimUebung
+channels:
+  - defaults
+dependencies:
+  - conda-forge::python
+  - conda-forge::pytorch
+  - conda-forge::scipy
+  - conda-forge::pymace
+  - conda-forge::matplotlib
+  - conda-forge::nglview
+  - conda-forge::kinisi
+  - conda-forge::pymatgen
+  - conda-forge::corner
