@@ -7,3 +7,4 @@ pymatgen
 corner
 ase
 jupyter
+ipywidgets
