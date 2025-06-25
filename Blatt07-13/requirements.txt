@@ -6,4 +6,4 @@ kinisi
 pymatgen
 corner
 ase
-
+jupyter
