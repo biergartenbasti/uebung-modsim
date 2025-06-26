@@ -28,7 +28,7 @@ path_to_Li = 'Li/POSCAR_4x4x3_20vac'
 path_to_Mg = 'Mg/POSCAR_4x4x3_20vac'
 path_to_MgBulk = 'Mg/POSCAR_3x3x3Bulk'
 path_to_LiPSCl = 'LiPSCl/POSCAR_2x2x2'
-path_to_MgScSe =  'MgSc2Se4/POSCAR_2x2x2'
+path_to_MgScSe =  'MgSc2Se4/POSCAR'
 
 structure_Li = read(path_to_Li,format='vasp')
 structure_Mg = read(path_to_Mg,format='vasp')
@@ -140,12 +140,12 @@ mace_calc_bulk = MACECalculator(
 #%% MD Simulation MgScSe Bulk
 MgScSe_relaxed = relaxation_mace(structure_MgScSe, mace_calc, fix_cell = False, f = 0.01)
 
-T_list = [800.0,1000.0,1200.0,1400.0,1600.0,1800.0,2000.0]
-traj_dir = 'MgSc2Se4_Trajectories'
+T_list = [800.0,1200.0,1600.0,2000.0]
+traj_dir = 'MgSc2Se4_Trajectories_3fs'
 for Temp in T_list:
     print(f'Temperatur ist {Temp}')
     structure_tempo = copy.deepcopy(MgScSe_relaxed['relaxed_structure'])
-    MD_mace(structure_tempo, traj_out = traj_dir, T_start = Temp, t_step = 2.5, n_steps = 1000, friction_coefficient = 1E-3)
+    MD_mace(structure_tempo, traj_out = traj_dir, T_start = Temp, t_step = 3, n_steps = 8000, friction_coefficient = 1E-3)
     pass
 #%% MD Simulation LiPSCl Bulk
 LiPSCl_relaxed = relaxation_mace(structure_LiPSCl, mace_calc, fix_cell = False, f = 0.01)

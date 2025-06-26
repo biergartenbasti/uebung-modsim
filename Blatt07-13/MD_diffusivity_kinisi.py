@@ -22,8 +22,8 @@ warnings.filterwarnings("ignore", category=UserWarning)
 for key,value in os.environ.items():
     globals()[key]=value
     pass
-MD_target='MgSc2Se4_Trajectories'
-plot_title='MgSc2Se4 Bulk Diffusion'
+MD_target='MgSc2Se4_Trajectories_1fs'
+plot_title='MgSc2Se4 Bulk Diffusion 1 fs steps'
 
 # define folder that contains trajectory files and create a list of them
 trajectories_list = [f'{MD_target}/{el}' for el in os.listdir(MD_target) if el.endswith('.traj')]
@@ -33,7 +33,7 @@ rng = np.random.RandomState(42) # is not used right now because of reproducibili
 
 p_params = {'specie': 'Mg',
           #'specie_indices': [97],
-          'time_step': 2.5,
+          'time_step': 1,
           'step_skip': 1,
           'progress': False,
           #'max_dt': 3000,
@@ -44,7 +44,7 @@ u_params = {'dimension':'xyz',
             'progress': False}
 d_params={'progress': False}
 
-time_skip=1000.0
+time_skip=500.0
 
 temps=np.array([]) # empty array, temps will be appended in the loop
 D=[] # append diffusion coeffs
