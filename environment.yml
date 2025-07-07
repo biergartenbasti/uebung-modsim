@@ -1,6 +1,7 @@
 name: ModSimUebung
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - conda-forge::python
   - conda-forge::pytorch
