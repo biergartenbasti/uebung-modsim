@@ -1,0 +1,6 @@
+torch
+mace-torch
+ase
+nglview
+ipywidgets
+jupyter
